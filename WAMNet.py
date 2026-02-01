@@ -42,17 +42,24 @@ class WAMNet(nn.Module):
             nn.Conv2d(64, 128, kernel_size=3, padding=1),
             nn.BatchNorm2d(128),
             nn.ReLU(inplace=True),
+            # Additional depth: increase representational capacity
+            nn.Conv2d(128, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
             nn.AdaptiveAvgPool2d((14, 14))  # Match spatial branch size
         )
         
         # ==================== Fusion Block ====================
         spatial_dim = backbone.features[5].out_channels  # Output channels from spatial branch
-        freq_dim = 128  # Output channels from frequency branch
+        freq_dim = 256  # Increased output channels from frequency branch
         
         self.fusion = CrossAttentionFusion(
             spatial_dim=spatial_dim,
             freq_dim=freq_dim,
-            hidden_dim=256
+            hidden_dim=512
         )
         
         # ==================== Classifier ====================

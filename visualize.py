@@ -3,6 +3,13 @@
 # 8. VISUALIZATION UTILITIES
 # ============================================================================
 
+import numpy as np
+import matplotlib.pyplot as plt
+from torchvision import transforms
+
+from waveletTransform import WaveletTransform2D
+
+
 def visualize_wavelet_transform(image_array):
     """Visualize wavelet decomposition of an image"""
     

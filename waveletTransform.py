@@ -3,6 +3,13 @@
 # 1. WAVELET TRANSFORM LAYER (CUDA/MPS Compatible)
 # ============================================================================
 
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import numpy as np
+import pywt
+
+
 class WaveletTransform2D(nn.Module):
     """2D Discrete Wavelet Transform Layer for PyTorch"""
     

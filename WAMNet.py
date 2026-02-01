@@ -3,6 +3,15 @@
 # 3. WAM-NET ARCHITECTURE
 # ============================================================================
 
+import torch
+import torch.nn as nn
+from typing import Tuple
+from torchvision import models
+
+from waveletTransform import WaveletTransform2D
+from crossattention import CrossAttentionFusion
+
+
 class WAMNet(nn.Module):
     """Wavelet-Attention Mobile Network for Crack Detection"""
     

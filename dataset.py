@@ -3,6 +3,15 @@
 # 4. DATA LOADING AND AUGMENTATION
 # ============================================================================
 
+import os
+from pathlib import Path
+import numpy as np
+import matplotlib.pyplot as plt
+import torch
+from torch.utils.data import Dataset, DataLoader, random_split
+from torchvision import transforms
+
+
 class ConcreteCrackDataset(Dataset):
     """Custom dataset for concrete crack images"""
     

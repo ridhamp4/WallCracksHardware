@@ -3,6 +3,10 @@
 # 2. CROSS-ATTENTION FUSION MODULE
 # ============================================================================
 
+import torch
+import torch.nn as nn
+
+
 class CrossAttentionFusion(nn.Module):
     """Cross-Attention Module for fusing spatial and frequency features"""
     

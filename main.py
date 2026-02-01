@@ -21,6 +21,13 @@ import pywt
 import pywt.data
 from typing import Tuple, Optional, List
 
+# Local modules
+from WAMNet import WAMNet
+from train import Trainer, InferenceEngine
+from dataset import get_data_loaders
+from evaluate import evaluate_model
+from deploy import export_to_onnx
+
 # Check for GPU availability
 device = torch.device('cuda' if torch.cuda.is_available() else 
                      'mps' if torch.backends.mps.is_available() else 'cpu')

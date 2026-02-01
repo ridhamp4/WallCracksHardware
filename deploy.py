@@ -3,6 +3,10 @@
 # 7. EXPORT FOR EDGE DEPLOYMENT (Qualcomm SNPE Compatible)
 # ============================================================================
 
+import torch
+from WAMNet import WAMNet
+
+
 def export_to_onnx(model_path, output_path="wamnet.onnx", input_size=(1, 3, 224, 224)):
     """Export model to ONNX format for Qualcomm SNPE"""
     

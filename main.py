@@ -44,7 +44,7 @@ np.random.seed(42)
 # 9. MAIN TRAINING SCRIPT
 # ============================================================================
 
-def main():
+def main(data_dir='data', learning_rate=None):
     """Main training and evaluation pipeline"""
     
     print("="*50)
@@ -54,10 +54,10 @@ def main():
     
     # Configuration
     config = {
-        'data_dir': 'concrete_crack_data',  # Update this path
+        'data_dir': data_dir,
         'batch_size': 32,
         'num_workers': 4 if device.type == 'cuda' else 2,
-        'learning_rate': 0.001,
+        'learning_rate': 1e-4 if learning_rate is None else learning_rate,
         'weight_decay': 1e-4,
         'epochs': 50,
         'patience': 10
@@ -316,8 +316,11 @@ if __name__ == "__main__":
     parser.add_argument('--image-path', type=str, 
                        help='Path to image for inference')
     parser.add_argument('--data-dir', type=str, 
-                       default='concrete_crack_data',
+                       default='data',
                        help='Path to dataset directory')
+    parser.add_argument('--learning-rate', type=float,
+                       default=None,
+                       help='Override default learning rate')
     
     args = parser.parse_args()
     
@@ -334,7 +337,8 @@ if __name__ == "__main__":
             print(f"  {args.data_dir}/Negative/  # No-crack images")
             exit(1)
         
-        main()
+        # Pass CLI learning rate through to main
+        main(args.data_dir, learning_rate=args.learning_rate)
     
     elif args.mode == 'infer':
         demo_inference(args.model_path, args.image_path)

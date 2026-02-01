@@ -76,19 +76,23 @@ class CrossAttentionFusion(nn.Module):
             spatial_q, freq_k, freq_v,
             need_weights=False
         )
-        
-        # Add & Norm
-        attn_output = self.norm1(spatial_flat + self.dropout(attn_output))
-        
+
+        # Use the projected spatial values as the residual (same hidden dim)
+        spatial_proj = spatial_v  # [seq_len, B, hidden_dim]
+
+        # Add & Norm using projected spatial features
+        attn_output = self.norm1(spatial_proj + self.dropout(attn_output))
+
         # FFN
         ffn_output = self.ffn(attn_output)
         ffn_output = self.norm2(attn_output + self.dropout(ffn_output))
-        
-        # Reshape back
+
+        # Reshape back: [seq_len, B, hidden] -> [B, hidden, H, W]
         ffn_output = ffn_output.permute(1, 2, 0).view(B, -1, H, W)
-        
-        # Concatenate with original spatial features and project
-        combined = torch.cat([spatial_feat, ffn_output], dim=1)
+        spatial_proj = spatial_proj.permute(1, 2, 0).view(B, -1, H, W)
+
+        # Concatenate projected spatial and fused features (both hidden_dim)
+        combined = torch.cat([spatial_proj, ffn_output], dim=1)  # [B, 2*hidden, H, W]
         output = self.output_proj(combined)
         
         return output

@@ -36,10 +36,12 @@ class WaveletTransform2D(nn.Module):
         HL = np.outer(dec_hi, dec_lo)
         HH = np.outer(dec_hi, dec_hi)
         
-        # Stack filters for RGB channels
-        filters = np.stack([LL, LH, HL, HH], axis=0)  # [4, h, w]
-        filters = np.repeat(filters[:, np.newaxis, :, :], 3, axis=1)  # [4, 3, h, w]
-        
+        # Stack filters for RGB channels into grouped filters for conv2d with groups=3
+        base_filters = np.stack([LL, LH, HL, HH], axis=0)  # [4, h, w]
+        # Tile for each input channel: [3, 4, h, w] -> reshape to [12, 1, h, w]
+        tiled = np.tile(base_filters[np.newaxis, :, :, :], (3, 1, 1, 1))  # [3,4,h,w]
+        filters = tiled.reshape(-1, base_filters.shape[1], base_filters.shape[2])  # [12, h, w]
+        filters = filters[:, np.newaxis, :, :]  # [12, 1, h, w]
         # Register as non-trainable buffer
         self.register_buffer('filters', torch.from_numpy(filters))
         
@@ -52,8 +54,10 @@ class WaveletTransform2D(nn.Module):
         HL_inv = np.outer(rec_hi, rec_lo)
         HH_inv = np.outer(rec_hi, rec_hi)
         
-        inv_filters = np.stack([LL_inv, LH_inv, HL_inv, HH_inv], axis=0)
-        inv_filters = np.repeat(inv_filters[:, np.newaxis, :, :], 3, axis=1)
+        inv_base = np.stack([LL_inv, LH_inv, HL_inv, HH_inv], axis=0)  # [4, h, w]
+        inv_tiled = np.tile(inv_base[np.newaxis, :, :, :], (3, 1, 1, 1))  # [3,4,h,w]
+        inv_filters = inv_tiled.reshape(-1, inv_base.shape[1], inv_base.shape[2])  # [12, h, w]
+        inv_filters = inv_filters[:, np.newaxis, :, :]  # [12, 1, h, w]
         self.register_buffer('inv_filters', torch.from_numpy(inv_filters))
     
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -90,18 +94,13 @@ class WaveletTransform2D(nn.Module):
         """
         B, C, H, W = coeffs.shape
         
-        # Reshape back to [B, 3, 4, H, W]
-        coeffs = coeffs.view(B, 3, 4, H, W)
-        
-        # Apply transposed convolution for upsampling
+        # coeffs expected shape [B, 12, H, W]
+        # Apply transposed convolution with groups=3 to map 12->3 channels
         output = F.conv_transpose2d(
-            coeffs.reshape(B * 3, 4, H, W),
+            coeffs,
             self.inv_filters,
             stride=2,
             groups=3
         )
-        
-        # Reshape back to [B, 3, H*2, W*2]
-        output = output.view(B, 3, H * 2, W * 2)
         
         return output

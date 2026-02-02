@@ -277,7 +277,7 @@ python main.py --mode export --model-path wamnet_checkpoints/best_model.pth
 
 1. Convert ONNX to DLC:
 ```bash
-snpe-onnx-to-dlc --input wamnet_quantcomm.onnx --output wamnet.dlc
+snpe-onnx-to-dlc --input wamnet_qualcomm.onnx --output wamnet.dlc
 ```
 
 2. Quantize to INT8:

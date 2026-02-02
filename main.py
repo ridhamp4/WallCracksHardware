@@ -353,7 +353,7 @@ if __name__ == "__main__":
         benchmark_model(args.model_path, test_loader)
     
     elif args.mode == 'export':
-        export_to_onnx(args.model_path, "wamnet_quantcomm.onnx")
+        export_to_onnx(args.model_path, "wamnet_qualcomm.onnx")
     
     print("\n" + "="*50)
     print("WAM-Net Implementation Complete")
